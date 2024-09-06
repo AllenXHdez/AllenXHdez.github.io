@@ -1,0 +1,5 @@
+---
+title: "About"
+---
+
+I am Allen Hernandez a graduate from UTD with a bachelors in Sociology, I am now studying for my masters in hopes that i become a data scientist.
