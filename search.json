@@ -2,15 +2,36 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Allen Hernandez",
+    "title": "Allen’s Projects",
     "section": "",
-    "text": "I am a graduate student from the University of Texas of Dallas currently studying to obtain a masters in social data analytics and research. This semester I hope to accomplish a couple projects.\n\nContact me\nAllenhdez@hotmail.com (972) 415 9933"
+    "text": "Hello I’m Allen I’m a UTD student studying for my masters in Data Analytics and Research. This semester I wish to complete a couple of projects.\n\n1 + 1\n\n[1] 2"
   },
   {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "I am Allen Hernandez a graduate from UTD with a bachelors in Sociology, I am now studying for my masters in hopes that i become a data scientist."
+    "text": "This is a website created through R studio."
+  },
+  {
+    "objectID": "Personal.html",
+    "href": "Personal.html",
+    "title": "Personal",
+    "section": "",
+    "text": "A little about my self is that I am a first generation graduate. I graduate at UTD with a bachelors in Sociology. One of my personal goals is to work in a think tank organization."
+  },
+  {
+    "objectID": "Research.html",
+    "href": "Research.html",
+    "title": "Allen Hernandez",
+    "section": "",
+    "text": "Projects loading.."
+  },
+  {
+    "objectID": "Project.html",
+    "href": "Project.html",
+    "title": "Projects",
+    "section": "",
+    "text": "Projects loading.."
   }
 ]
