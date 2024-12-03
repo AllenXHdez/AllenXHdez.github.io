@@ -8,10 +8,16 @@ website:
       - href: index.qmd
         text: Home
       - about.qmd
+      - href: Project.qmd 
+        text: Project 
+      - href: Personal.qmd
+        text: Personal
+    
+    
 
 format:
   html:
-    theme: sandstone
+    theme: darkly
     css: styles.css
     toc: true
 

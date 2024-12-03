@@ -2,4 +2,6 @@
 title: "About"
 ---
 
-I am Allen Hernandez a graduate from UTD with a bachelors in Sociology, I am now studying for my masters in hopes that i become a data scientist.
+Allen Hernandez is a UTD Sociology graduate currently studying Data Analytics and Research. My future goal is to conduct multiple data analysis projects that can help improve people lives and strengthen society.
+
+This is a website created through R studio.
