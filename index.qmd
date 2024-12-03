@@ -1,9 +1,9 @@
 ---
-title: "Allen Hernandez"
+title: "Allen's Projects"
 ---
 
-I am a graduate student from the University of Texas of Dallas currently studying to obtain a masters in social data analytics and research. This semester I hope to accomplish a couple projects.
+Hello I'm Allen I'm a UTD student studying for my masters in Data Analytics and Research. This semester I wish to complete a couple of projects.
 
-### Contact me
-
-Allenhdez\@hotmail.com (972) 415 9933
+```{r}
+1 + 1
+```

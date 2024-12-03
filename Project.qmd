@@ -1,0 +1,665 @@
+### Projects/Assignments
+
+EPPS 6356
+
+A Maroon Leaf
+
+```{r}
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+library(gsubfn)
+library(tidyverse)
+
+axiom="X"
+rules=list("X"="F-[[X]+X]+F[+FX]-X", "F"="FF")
+angle=22.5
+depth=6
+
+for (i in 1:depth) axiom=gsubfn(".", rules, axiom)
+
+actions=str_extract_all(axiom, "\\d*\\+|\\d*\\-|F|L|R|\\[|\\]|\\|") %>% unlist
+
+status=data.frame(x=numeric(1), y=numeric(1), alfa=numeric(1))
+points=data.frame(x1 = 0, y1 = 0, x2 = NA, y2 = NA, alfa=90, depth=1)
+
+for (action in actions)
+{
+  if (action=="F")
+  {
+    x=points[1, "x1"]+cos(points[1, "alfa"]*(pi/180))
+    y=points[1, "y1"]+sin(points[1, "alfa"]*(pi/180))
+    points[1,"x2"]=x
+    points[1,"y2"]=y
+    data.frame(x1 = x, y1 = y, x2 = NA, y2 = NA,
+               alfa=points[1, "alfa"],
+               depth=points[1,"depth"]) %>% rbind(points)->points
+  }
+  if (action %in% c("+", "-")){
+    alfa=points[1, "alfa"]
+    points[1, "alfa"]=eval(parse(text=paste0("alfa",action, angle)))
+  }
+  if(action=="["){
+    data.frame(x=points[1, "x1"], y=points[1, "y1"], alfa=points[1, "alfa"]) %>%
+      rbind(status) -> status
+    points[1, "depth"]=points[1, "depth"]+1
+  }
+
+  if(action=="]"){
+    depth=points[1, "depth"]
+    points[-1,]->points
+    data.frame(x1=status[1, "x"], y1=status[1, "y"], x2=NA, y2=NA,
+               alfa=status[1, "alfa"],
+               depth=depth-1) %>%
+      rbind(points) -> points
+    status[-1,]->status
+  }
+}
+
+ggplot() +
+  geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2),
+               lineend = "round",
+               color="maroon", 
+               data=na.omit(points)) +
+  coord_fixed(ratio = 1) +
+  theme_void() 
+```
+
+![](images/chart.png){fig-align="left" width="480"}
+
+In this chart we see the importance of the usage of color. Each color correspond to an issue. The only issue with this is that there are two colors are pretty familiar; The red and the orange.
+
+Assignment
+
+```{r}
+plot(pressure, pch=6)
+text(130, 700, 
+     "Pressure (mm Hg)\nversus\nTemperature (Celsius)")
+# Setting the parameter (3 rows by 2 cols)
+par(mfrow=c(2, 2))
+# Scatterplot
+x <- c(0.5, 2, 4, 8, 12, 16)
+y1 <- c(1, 1.3, 1.9, 3.4, 3.9, 4.8)
+y2 <- c(4, .8, .5, .45, .4, .3)
+
+par(las=1, mar=c(4, 4, 2, 4), cex=.7) 
+plot.new()
+plot.window(range(x), c(0, 6))
+lines(x, y1)
+lines(x, y2)
+points(x, y1, pch=16, cex=2) # Try different cex value?  
+points(x, y2, pch=21, bg="white", cex=2)  # Different background color
+par(col="gray50", fg="gray50", col.axis="gray50")
+axis(1, at=seq(0, 16, 4)) # What is the first number standing for?
+axis(2, at=seq(0, 6, 2))
+axis(4, at=seq(0, 6, 2))
+box(bty="u")
+mtext("Travel Time (s)", side=1, line=2, cex=0.8)
+mtext("Responses per Travel", side=2, line=2, las=0, cex=0.8)
+mtext("Responses per Second", side=4, line=2, las=0, cex=0.8)
+text(4, 5, "Bird 131")
+par(mar=c(5.1, 4.1, 4.1, 2.1), col="black", fg="black", col.axis="black")
+
+Y <- rnorm(50)
+
+Y[Y < -3.5 | Y > 3.5] <- NA # Selection/set range
+x <- seq(-3.5, 3.5, .1)
+dn <- dnorm(x)
+par(mar=c(4.5, 4.1, 3.1, 0))
+hist(Y, breaks=seq(-3.5, 3.5), ylim=c(0, 0.5), 
+     col="gray40", freq=FALSE)
+lines(x, dnorm(x), lwd=2)
+par(mar=c(5.1, 4.1, 4.1, 2.1))
+
+par(mar=c(2, 3.1, 2, 2.1)) 
+midpts <- barplot(VADeaths, 
+                  col=gray(0.1 + seq(1, 9, 2)/11), 
+                  names=rep("", 4))
+mtext(sub(" ", "\n", colnames(VADeaths)),
+      at=midpts, side=1, line=0.5, cex=0.5)
+text(rep(midpts, each=5), apply(VADeaths, 2, cumsum) - VADeaths/2,
+     VADeaths, 
+     col=rep(c("white", "black"), times=3:2), 
+     cex=0.8)
+par(mar=c(5.1, 4.1, 4.1, 2.1))  
+
+par(mar=c(3, 4.1, 2, 0))
+boxplot(len ~ dose, data = ToothGrowth,
+        boxwex = 0.25, at = 1:3 - 0.2,
+        subset= supp == "VC", col="white",
+        xlab="",
+        ylab="tooth length", ylim=c(0,35))
+mtext("Vitamin C dose (mg)", side=1, line=2.5, cex=0.8)
+boxplot(len ~ dose, data = ToothGrowth, add = TRUE,
+        boxwex = 0.25, at = 1:3 + 0.2,
+        
+        subset= supp == "OJ")
+legend(1.5, 9, c("Ascorbic acid", "Orange juice"), 
+       fill = c("white", "gray"), 
+       bty="n")
+par(mar=c(5.1, 4.1, 4.1, 2.1))
+
+x <- seq(-10, 10, length= 30)
+y <- x
+f <- function(x,y) { r <- sqrt(x^2+y^2); 10 * sin(r)/r }
+z <- outer(x, y, f)
+z[is.na(z)] <- 1
+# 0.5 to include z axis label
+par(mar=c(0, 0.5, 0, 0), lwd=0.5)
+persp(x, y, z, theta = 30, phi = 30, 
+      expand = 0.5)
+par(mar=c(5.1, 4.1, 4.1, 2.1), lwd=1)
+
+par(mar=c(0, 2, 1, 2), xpd=FALSE, cex=0.5)
+pie.sales <- c(0.12, 0.3, 0.26, 0.16, 0.04, 0.12)
+names(pie.sales) <- c("Blueberry", "Cherry",
+                      "Apple", "Boston Cream", "Other", "Vanilla")
+```
+
+```{r}
+
+data(anscombe)  # Load Anscombe's data
+View(anscombe) # View the data
+summary(anscombe)
+
+## Simple version
+plot(anscombe$x1,anscombe$y1)
+summary(anscombe)
+
+# Create four model objects
+lm1 <- lm(y1 ~ x1, data=anscombe)
+summary(lm1)
+lm2 <- lm(y2 ~ x2, data=anscombe)
+summary(lm2)
+lm3 <- lm(y3 ~ x3, data=anscombe)
+summary(lm3)
+lm4 <- lm(y4 ~ x4, data=anscombe)
+summary(lm4)
+plot(anscombe$x1,anscombe$y1)
+abline(coefficients(lm1))
+plot(anscombe$x2,anscombe$y2)
+abline(coefficients(lm2))
+plot(anscombe$x3,anscombe$y3)
+abline(coefficients(lm3))
+plot(anscombe$x4,anscombe$y4)
+abline(coefficients(lm4))
+
+
+## Fancy version (per help file)
+
+ff <- y ~ x
+mods <- setNames(as.list(1:4), paste0("lm", 1:4))
+
+# Plot using for loop
+for(i in 1:4) {
+  ff[2:3] <- lapply(paste0(c("y","x"), i), as.name)
+  ## or   ff[[2]] <- as.name(paste0("y", i))
+  ##      ff[[3]] <- as.name(paste0("x", i))
+  mods[[i]] <- lmi <- lm(ff, data = anscombe)
+  print(anova(lmi))
+}
+
+sapply(mods, coef)  # Note the use of this function
+lapply(mods, function(fm) coef(summary(fm)))
+
+# Preparing for the plots
+op <- par(mfrow = c(2, 2), mar = 0.1+c(4,4,1,1), oma =  c(0, 0, 2, 0))
+
+# Plot charts using for loop
+for(i in 1:4) {
+  ff[2:3] <- lapply(paste0(c("y","x"), i), as.name)
+  plot(ff, data = anscombe, col = "red", pch = 21, bg = "orange", cex = 1.2,
+       xlim = c(3, 19), ylim = c(3, 13))
+  abline(mods[[i]], col = "blue")
+}
+mtext("Anscombe's 4 Regression data sets", outer = TRUE, cex = 1.5)
+par(op)
+
+
+```
+
+```{r}
+# Clear environment
+rm(list = ls())
+
+# libraries
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(scales)
+
+# Load the data from OWID GitHub
+owideu <- read.csv("https://github.com/owid/covid-19-data/blob/master/public/data/owid-covid-data.csv?raw=true")
+
+# Deselect cases/rows with OWID
+owideu <- owideu[!grepl("^OWID", owideu$iso_code), ]
+
+# Subset data for Europe
+owideu <- subset(owideu, continent == "Europe")
+
+# Convert the date column to Date type
+owideu$date <- as.Date(owideu$date)
+
+# Extract the year and month from the date
+owideu$year <- format(owideu$date, "%Y")
+owideu$month <- format(owideu$date, "%m")
+
+# Further subset the data to remove zero deaths and dates before 2024-01-20
+tt <- subset(owideu, new_deaths != 0 & date < "2024-01-20")
+
+# Subset the data for specific countries and years, focusing on Germany 2020 and December 2022
+outliers <- tt %>%
+  filter((location == "Spain" & year == "2020") |
+           (location == "Germany" & (year == "2020" | (year == "2022" & month == "12"))) |
+           (location == "Ukraine" & year == "2021") |
+           (location == "Italy" & year == "2024"))
+
+# For Spain 2020, select the highest and 3rd highest new deaths, and for others, select the highest
+outliers <- outliers %>%
+  group_by(location, year) %>%
+  filter((location == "Spain" & year == "2020" & new_deaths %in% sort(new_deaths, decreasing = TRUE)[c(1, 3)]) |
+           (location != "Spain" & new_deaths == max(new_deaths, na.rm = TRUE))) %>%
+  ungroup()
+
+# Create the base ggplot
+ggplot() +
+  # Germany points (all data for Germany for context)
+  geom_point(data = subset(tt, location == "Germany"), aes(x = as.Date(date), y = new_deaths), color = "violetred1", size = 0.7) +
+  
+  # Spain points
+  geom_point(data = subset(tt, location == "Spain"), aes(x = as.Date(date), y = new_deaths), color = "violetred1", size = 0.7) +
+  
+  # Ukraine points
+  geom_point(data = subset(tt, location == "Ukraine"), aes(x = as.Date(date), y = new_deaths), color = "violetred1", size = 0.7) +
+  
+  # France points
+  geom_point(data = subset(tt, location == "France"), aes(x = as.Date(date), y = new_deaths), color = "violetred1", size = 0.7) +
+  
+  # All points scaled down by a factor of 6
+  geom_point(data = tt, aes(x = as.Date(date), y = new_deaths / 6), color = "violetred1", size = 1.4) +
+  
+  # Customize the axes and labels
+  labs(x = "Dates", y = "COVID Deaths in Europe (Daily)") +
+  
+  # Customize the date axis and set dynamic date breaks
+  scale_x_date(labels = date_format("%Y-%m"), breaks = pretty_breaks(n = 30)) +
+  
+  # Custom y-axis with breaks up to 6000
+  scale_y_continuous(breaks = c(0, 1000, 2000, 3000, 4000, 5000, 6000), limits = c(0, 6500),
+                     labels = c("0", "1000", "", "3000", "", "5000", "")) +
+  
+  # Apply a minimal theme with customizations for better aesthetics
+  theme_minimal(base_family = "Palatino") +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, family = "Palatino"),
+    axis.text.y = element_text(family = "Palatino"),
+    axis.title.x = element_text(family = "Palatino"),
+    axis.title.y = element_text(family = "Palatino"),
+    panel.grid = element_blank(),  # Remove background grid
+    panel.border = element_rect(fill = NA, color = "black"),  # Make axis lines are visible
+    axis.ticks.y = element_line(color = "black"),  # Show y-axis ticks
+    axis.ticks.length.y = unit(3, "mm"),  # Lengthen y-axis ticks
+    axis.ticks.x = element_blank()  # Remove x-axis ticks
+  ) +
+  
+  # Adding labels for the outliers
+  geom_text(data = outliers, aes(x = as.Date(date), y = new_deaths, label = location), 
+            vjust = 0, hjust = -0.1, color = "black", size = 3, family = "Palatino")  # Position the label to the right of the point
+
+```
+
+```{r}
+# Load the data from OWID GitHub
+owideu <- read.csv("https://github.com/owid/covid-19-data/blob/master/public/data/owid-covid-data.csv?raw=true")
+
+# Load necessary library
+library(ggplot2)
+
+# Filter data for the United States
+us_data <- subset(owideu, location == "United States")
+
+# Plot new COVID-19 cases over time
+ggplot(us_data, aes(x = date, y = new_cases)) +
+  geom_line(color = "blue") +
+  labs(title = "New COVID-19 Cases in the United States",
+       x = "Date",
+       y = "New Cases") +
+  theme_minimal()
+us_data <- subset(owideu, location == "United States" & !is.na(new_cases))
+
+ggplot(us_data, aes(x = as.Date(date), y = new_cases, group = 1)) +
+  geom_line(color = "blue") +
+  labs(title = "New COVID-19 Cases in the United States",
+       x = "Date",
+       y = "New Cases") +
+  theme_minimal()
+us_data <- subset(owideu, location == "United States" & !is.na(new_cases))
+
+ggplot(us_data, aes(x = as.Date(date), y = new_cases, group = location)) +
+  geom_line(color = "blue") +
+  labs(title = "New COVID-19 Cases in the United States",
+       x = "Date",
+       y = "New Cases") +
+  theme_minimal()
+
+
+
+```
+
+```{r}
+# Load necessary library
+library(ggplot2)
+
+# Filter and aggregate data for top 10 countries with the most cases
+country_data <- aggregate(total_cases ~ location, data = owideu, max, na.rm = TRUE)
+top_10_countries <- head(country_data[order(-country_data$total_cases), ], 10)
+
+# Create the column chart
+ggplot(top_10_countries, aes(x = reorder(location, -total_cases), y = total_cases)) +
+  geom_col(fill = "steelblue") +
+  labs(title = "Top 10 Countries by Total COVID-19 Cases",
+       x = "Country",
+       y = "Total Cases") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 35, hjust = 1))
+
+
+```
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+
+# Summarize total cases and population by continent
+continent_data <- aggregate(cbind(total_cases, population) ~ continent, data = owideu, sum, na.rm = TRUE)
+
+# Remove any rows with missing continents
+continent_data <- na.omit(continent_data)
+
+# Create the variable-width column chart
+variable_width_chart <- ggplot(continent_data, aes(x = continent, y = total_cases)) +
+  geom_col(aes(width = population / max(population)), fill = "steelblue") +
+  labs(title = "Total COVID-19 Cases by Continent (Variable Width)",
+       x = "Continent (Width = Population)",
+       y = "Total Cases") +
+  theme_minimal()
+
+# Display the chart
+variable_width_chart
+```
+
+```{r}
+# Summarize total deaths by continent
+continent_deaths <- aggregate(total_deaths ~ continent, data = owideu, sum, na.rm = TRUE)
+
+# Remove any rows with missing continents
+continent_deaths <- na.omit(continent_deaths)
+
+# Set up the basic column chart for deaths
+barplot(height = continent_deaths$total_deaths,
+        names.arg = continent_deaths$continent,
+        col = "darkred",
+        main = "Total COVID-19 Deaths by Continent",
+        xlab = "Continent",
+        ylab = "Total Deaths",
+        las = 2, # Rotate x-axis labels
+        cex.names = 0.8) # Adjust label size
+
+```
+
+```{r}
+# Summarize total cases and deaths by continent
+continent_data <- aggregate(cbind(total_cases, total_deaths) ~ continent, data = owideu, sum, na.rm = TRUE)
+
+# Remove any rows with missing continents
+continent_data <- na.omit(continent_data)
+
+# Set up the plotting area
+par(mar = c(5, 4, 4, 4) + 0.3) # Adjust margins to fit two y-axes
+
+# Create the bar chart for total deaths
+barplot(height = continent_data$total_deaths,
+        names.arg = continent_data$continent,
+        col = "darkred",
+        ylim = c(0, max(continent_data$total_deaths) * 1.2),
+        main = "Total COVID-19 Deaths and Cases by Continent",
+        xlab = "Continent",
+        ylab = "Total Deaths",
+        las = 2,
+        cex.names = 0.8)
+
+# Add a second y-axis on the right for total cases
+par(new = TRUE)
+plot(continent_data$total_cases, type = "o", col = "blue", axes = FALSE, xlab = "", ylab = "",
+     ylim = c(0, max(continent_data$total_cases) * 1.2))
+axis(4)
+mtext("Total Cases", side = 4, line = 3)
+
+# Add a legend
+legend("topright", legend = c("Total Deaths", "Total Cases"),
+       fill = c("darkred", NA), col = c(NA, "blue"), lty = c(NA, 1), pch = c(15, 1))
+
+```
+
+```{r}
+install.packages("gridExtra")
+library(gridExtra)
+library(ggplot2)
+# Summarize total cases and total deaths by continent
+continent_data <- aggregate(cbind(total_cases, total_deaths) ~ continent, data = owideu, sum, na.rm = TRUE)
+
+# Remove any rows with missing continents
+continent_data <- na.omit(continent_data)
+
+# Create bar charts for cases and deaths
+cases_chart <- ggplot(continent_data, aes(x = continent, y = total_cases)) +
+  geom_col(fill = "steelblue") +
+  labs(title = "Total COVID-19 Cases by Continent",
+       x = "Continent", y = "Total Cases") +
+  theme_minimal()
+
+deaths_chart <- ggplot(continent_data, aes(x = continent, y = total_deaths)) +
+  geom_col(fill = "darkred") +
+  labs(title = "Total COVID-19 Deaths by Continent",
+       x = "Continent", y = "Total Deaths") +
+  theme_minimal()
+
+# Create a summary table
+summary_table <- tableGrob(continent_data)
+
+# Arrange charts and table in a grid
+grid.arrange(cases_chart, deaths_chart, summary_table, nrow = 2)
+
+```
+
+```{r}
+
+## Workshop: Scraping webpages with R rvest package
+# Prerequisites: Chrome browser, Selector Gadget
+
+# install.packages("tidyverse")
+library(tidyverse)
+# install.packages("rvest")
+library(rvest)
+
+url <- 'https://en.wikipedia.org/wiki/List_of_countries_by_foreign-exchange_reserves'
+#Reading the HTML code from the Wiki website
+wikiforreserve <- read_html(url)
+class(wikiforreserve)
+
+## Get the XPath data using Inspect element feature in Safari, Chrome or Firefox
+## At Inspect tab, look for <table class=....> tag. Leave the table close
+## Right click the table and Copy --> XPath, paste at html_nodes(xpath =)
+
+foreignreserve <- wikiforreserve %>%
+  html_nodes(xpath='//*[@id="mw-content-text"]/div[1]/table[1]') %>%
+  html_table()
+class(foreignreserve) # Why the first column is not scrapped?
+
+fores = foreignreserve[[1]][,c(1, 2,3,4,5,6,7,8) ] # [[ ]] returns a single element directly, without retaining the list structure.
+
+# 
+names(fores) <- c("Country", "Forexreswithgold", "Date1", "Change1","Forexreswithoutgold", "Date2","Change2", "Sources")
+colnames(fores)
+
+head(fores$Country, n=10)
+
+## Workshop: Scraping webpages with R rvest package
+# Prerequisites: Chrome browser, Selector Gadget
+
+# install.packages("tidyverse")
+library(tidyverse)
+# install.packages("rvest")
+library(rvest)
+
+url <- 'https://en.wikipedia.org/wiki/List_of_countries_by_foreign-exchange_reserves'
+#Reading the HTML code from the Wiki website
+class(url) 
+wikiforreserve <- read_html(url)
+class(wikiforreserve)
+
+## Get the XPath data using Inspect element feature in Safari, Chrome or Firefox
+## At Inspect tab, look for <table class=....> tag. Leave the table close
+## Right click the table and Copy --> XPath, paste at html_nodes(xpath =)
+
+foreignreserve <- wikiforreserve %>%
+  html_nodes(xpath='//*[@id="mw-content-text"]/div[1]/table[1]') %>%
+  html_table()
+class(foreignreserve) # Why the first column is not scrapped?
+
+
+fores = foreignreserve[[1]][,c(1,2,3,4,5,6,7) ] # [[ ]] returns a single element directly, without retaining the list structure.
+
+names(fores) <- c("Country", "Forexreswithgold", "Date1", "Change1","Forexreswithoutgold", "Date2","Change2", "Sources")
+colnames(fores)
+
+head(fores$Country, n=10)
+class(fores$Date1)
+# Sources column useful?
+
+## Clean up variables
+## What type is Date?
+
+# Convert Date1 variable
+fores$Date1 = as.Date(fores$Date1, format = "%d %b %Y")
+class(fores$Date1)
+
+write.csv(fores, "fores.csv", row.names = FALSE) # use fwrite?
+
+
+
+
+```
+
+```{r}
+install.packages(c("ggplot2","gapminder"))
+library(ggplot2)
+library(gapminder)
+gm = gapminder
+class(gm)
+gc()
+p <- ggplot(data = gm)
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp)) 
+
+## Add a layer
+p + geom_point(size=.5)
+
+## Add some color grouping
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp, color=continent))
+p + geom_point(size=.5)
+
+## Add a regression line, dropped the color grouping
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp))
+p + geom_point(pch=20, size=.8) + geom_smooth(method="lm")
+
+## Change dot color?
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp,
+                          color = "purple"))
+p + geom_point() 
+
++
+  geom_smooth(method = "loess") +
+  scale_x_log10(2)
+
+
+## How about this?
+
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp))
+p + geom_point(color = "purple") +
+  geom_smooth(method = "loess") + scale_x_log10()
+
+## Add labels
+
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp, col=continent))
+p + geom_point() +
+  geom_smooth(method = "loess") + scale_x_log10() +
+  xlab("GDP per capita") +
+  ylab("Life Expectancy")
+
+
+## Facetting
+
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp, col=continent))
+p + geom_point(size=.5) +
+  geom_smooth(method = "loess", col="black", size=.5) + scale_x_log10() +
+  xlab("GDP per capita") +
+  ylab("Life Expectancy") +
+  facet_wrap(~ continent, nrow=2)
+
+## Finishing touches
+
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp, col=continent))
+p + geom_point() +
+  geom_smooth(method = "loess") + scale_x_log10() +
+  xlab("GDP per capita") +
+  ylab("Life Expectancy") +
+  facet_wrap(~ continent, nrow=2) +
+  theme(text=element_text(size=14, family="Palatino")) 
+
+## Theme!
+
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp, col=continent))
+p + geom_point(size=.5) +
+  geom_smooth(method = "loess", col="black", size=.5) + scale_x_log10() +
+  xlab("GDP per capita") +
+  ylab("Life Expectancy") +
+  facet_wrap(~ continent, nrow=2)+
+  theme(text=element_text(size=14, family="Palatino")) + 
+  theme_bw()
+
+
+# Why font still the same?
+# 
+p <- ggplot(data = gm,
+            mapping = aes(x = gdpPercap,
+                          y = lifeExp))
+p + geom_point(color = "purple") +
+  geom_smooth(method = "loess") + scale_x_log10() +
+  xlab("GDP per capita") +
+  ylab("Life Expectancy") +
+  facet_wrap(~ continent, nrow=2)  + 
+  theme_bw() + 
+  theme(text=element_text(size=14, family="Palatino")) 
+
+
+```
+
+```{r}
+
+```
