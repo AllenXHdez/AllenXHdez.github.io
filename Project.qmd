@@ -470,196 +470,60 @@ grid.arrange(cases_chart, deaths_chart, summary_table, nrow = 2)
 
 ```
 
-```{r}
-
-## Workshop: Scraping webpages with R rvest package
-# Prerequisites: Chrome browser, Selector Gadget
-
-# install.packages("tidyverse")
-library(tidyverse)
-# install.packages("rvest")
-library(rvest)
-
-url <- 'https://en.wikipedia.org/wiki/List_of_countries_by_foreign-exchange_reserves'
-#Reading the HTML code from the Wiki website
-wikiforreserve <- read_html(url)
-class(wikiforreserve)
-
-## Get the XPath data using Inspect element feature in Safari, Chrome or Firefox
-## At Inspect tab, look for <table class=....> tag. Leave the table close
-## Right click the table and Copy --> XPath, paste at html_nodes(xpath =)
-
-foreignreserve <- wikiforreserve %>%
-  html_nodes(xpath='//*[@id="mw-content-text"]/div[1]/table[1]') %>%
-  html_table()
-class(foreignreserve) # Why the first column is not scrapped?
-
-fores = foreignreserve[[1]][,c(1, 2,3,4,5,6,7,8) ] # [[ ]] returns a single element directly, without retaining the list structure.
-
-# 
-names(fores) <- c("Country", "Forexreswithgold", "Date1", "Change1","Forexreswithoutgold", "Date2","Change2", "Sources")
-colnames(fores)
-
-head(fores$Country, n=10)
-
-## Workshop: Scraping webpages with R rvest package
-# Prerequisites: Chrome browser, Selector Gadget
-
-# install.packages("tidyverse")
-library(tidyverse)
-# install.packages("rvest")
-library(rvest)
-
-url <- 'https://en.wikipedia.org/wiki/List_of_countries_by_foreign-exchange_reserves'
-#Reading the HTML code from the Wiki website
-class(url) 
-wikiforreserve <- read_html(url)
-class(wikiforreserve)
-
-## Get the XPath data using Inspect element feature in Safari, Chrome or Firefox
-## At Inspect tab, look for <table class=....> tag. Leave the table close
-## Right click the table and Copy --> XPath, paste at html_nodes(xpath =)
-
-foreignreserve <- wikiforreserve %>%
-  html_nodes(xpath='//*[@id="mw-content-text"]/div[1]/table[1]') %>%
-  html_table()
-class(foreignreserve) # Why the first column is not scrapped?
-
-
-fores = foreignreserve[[1]][,c(1,2,3,4,5,6,7) ] # [[ ]] returns a single element directly, without retaining the list structure.
-
-names(fores) <- c("Country", "Forexreswithgold", "Date1", "Change1","Forexreswithoutgold", "Date2","Change2", "Sources")
-colnames(fores)
-
-head(fores$Country, n=10)
-class(fores$Date1)
-# Sources column useful?
-
-## Clean up variables
-## What type is Date?
-
-# Convert Date1 variable
-fores$Date1 = as.Date(fores$Date1, format = "%d %b %Y")
-class(fores$Date1)
-
-write.csv(fores, "fores.csv", row.names = FALSE) # use fwrite?
-
-
-
-
+```{}
 ```
 
 ```{r}
-install.packages(c("ggplot2","gapminder"))
+library(quanteda)
+library(quanteda.textmodels)
+library(quanteda.textplots)
+library(readr)
 library(ggplot2)
-library(gapminder)
-gm = gapminder
-class(gm)
-gc()
-p <- ggplot(data = gm)
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp)) 
 
-## Add a layer
-p + geom_point(size=.5)
-
-## Add some color grouping
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp, color=continent))
-p + geom_point(size=.5)
-
-## Add a regression line, dropped the color grouping
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp))
-p + geom_point(pch=20, size=.8) + geom_smooth(method="lm")
-
-## Change dot color?
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp,
-                          color = "purple"))
-p + geom_point() 
-
-+
-  geom_smooth(method = "loess") +
-  scale_x_log10(2)
-
-
-## How about this?
-
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp))
-p + geom_point(color = "purple") +
-  geom_smooth(method = "loess") + scale_x_log10()
-
-## Add labels
-
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp, col=continent))
-p + geom_point() +
-  geom_smooth(method = "loess") + scale_x_log10() +
-  xlab("GDP per capita") +
-  ylab("Life Expectancy")
-
-
-## Facetting
-
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp, col=continent))
-p + geom_point(size=.5) +
-  geom_smooth(method = "loess", col="black", size=.5) + scale_x_log10() +
-  xlab("GDP per capita") +
-  ylab("Life Expectancy") +
-  facet_wrap(~ continent, nrow=2)
-
-## Finishing touches
-
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp, col=continent))
-p + geom_point() +
-  geom_smooth(method = "loess") + scale_x_log10() +
-  xlab("GDP per capita") +
-  ylab("Life Expectancy") +
-  facet_wrap(~ continent, nrow=2) +
-  theme(text=element_text(size=14, family="Palatino")) 
-
-## Theme!
-
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp, col=continent))
-p + geom_point(size=.5) +
-  geom_smooth(method = "loess", col="black", size=.5) + scale_x_log10() +
-  xlab("GDP per capita") +
-  ylab("Life Expectancy") +
-  facet_wrap(~ continent, nrow=2)+
-  theme(text=element_text(size=14, family="Palatino")) + 
-  theme_bw()
-
-
-# Why font still the same?
-# 
-p <- ggplot(data = gm,
-            mapping = aes(x = gdpPercap,
-                          y = lifeExp))
-p + geom_point(color = "purple") +
-  geom_smooth(method = "loess") + scale_x_log10() +
-  xlab("GDP per capita") +
-  ylab("Life Expectancy") +
-  facet_wrap(~ continent, nrow=2)  + 
-  theme_bw() + 
-  theme(text=element_text(size=14, family="Palatino")) 
-
-
+summit <- read_csv("https://raw.githubusercontent.com/datageneration/datamethods/master/textanalytics/summit_11162021.csv")
+sum_twt = summit$text
+toks = tokens(sum_twt)
+sumtwtdfm <- dfm(toks)
+class(toks)
+sum_lsa <- textmodel_lsa(sumtwtdfm, nd=4,  margin = c("both", "documents", "features"))
+summary(sum_lsa)
+head(sum_lsa$docs)
+class(sum_lsa)
+tweet_dfm <- tokens(sum_twt, remove_punct = TRUE) %>%
+  dfm()
+head(tweet_dfm)
+tag_dfm <- dfm_select(tweet_dfm, pattern = "#*")
+toptag <- names(topfeatures(tag_dfm, 50))
+head(toptag, 10)
+library("quanteda.textplots")
+tag_fcm <- fcm(tag_dfm)
+head(tag_fcm)
+topgat_fcm <- fcm_select(tag_fcm, pattern = toptag)
+textplot_network(topgat_fcm, min_freq = 50, edge_alpha = 0.8, edge_size = 1)
 ```
 
 ```{r}
+library(quanteda)
+library(quanteda.textmodels)
+library(quanteda.textplots)
+library(readr)
+library(ggplot2)
 
+dfm_inaug <- corpus_subset(data_corpus_inaugural, Year <= 1826) %>%
+  tokens() %>% 
+  tokens_remove(stopwords('english')) %>% 
+  tokens_remove("[[:punct:]]", valuetype = "regex") %>%
+  dfm() %>%
+  dfm_trim(min_termfreq = 10, verbose = FALSE)
+set.seed(100)
+textplot_wordcloud(dfm_inaug)
+```
+
+```{r}
+inaug_speech = data_corpus_inaugural
+
+data_corpus_inaugural_subset <- 
+  corpus_subset(data_corpus_inaugural, Year > 1949)
+kwic(tokens(data_corpus_inaugural_subset), pattern = "american") %>%
+  textplot_xray()
 ```
